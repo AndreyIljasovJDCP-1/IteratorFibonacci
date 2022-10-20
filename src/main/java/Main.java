@@ -4,13 +4,13 @@ import example.iterator.Iterator;
 
 public class Main {
     public static void main(String[] args) {
-        Collection fibonacci = new Fibonacci(55);
+        Collection fibonacci = new Fibonacci(34);
         Iterator iterator = fibonacci.getIterator();
         while (iterator.hasNext()) {
             System.out.println(iterator.next());
         }
 
-        fibonacci.setUBound(144, iterator);
+        fibonacci.setUBound(100, iterator);
 
         while (iterator.hasNext()) {
             System.out.println(iterator.next());

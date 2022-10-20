@@ -1,19 +1,20 @@
 package example.iterator;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Fibonacci implements Collection {
 
-    private long[] sequence;
+    private List<Long> sequence;
     private long uBound;
     public Fibonacci(long uBound) {
         this.uBound = uBound;
         this.sequence = generateSequence(uBound, 0, 1);
     }
 
-    private long[] generateSequence(long uBound, long first, long next) {
+    private List<Long> generateSequence(long uBound, long first, long next) {
         AtomicInteger i = new AtomicInteger(1);
         long size = Stream.iterate(new long[]{first, next, 1},
                         arr -> new long[]{arr[1], arr[0] + arr[1], i.incrementAndGet()})
@@ -25,7 +26,8 @@ public class Fibonacci implements Collection {
                         new long[]{first, next}, arr -> new long[]{arr[1], arr[0] + arr[1]})
                 .limit(size)
                 .mapToLong(el -> el[0])
-                .toArray();
+                .boxed()
+                .collect(Collectors.toList());
     }
 
     public void setUBound(long uBound, Iterator iterator) {
@@ -41,17 +43,13 @@ public class Fibonacci implements Collection {
             long next = current + last;
 
             if (next > uBound) {
-                long[] joined = Arrays.copyOf(sequence, sequence.length + 1);
-                joined[joined.length - 1] = current;
-                sequence = joined;
+                sequence.add(current);
                 this.uBound = uBound;
                 iterator.resetIndex();//сбрасываем индекс, т.к. сейчас он на предыдущем и 1 эл-т добавился
                 return;
             }
-            long[] upSequence = generateSequence(uBound, current, next);
-            long[] joined = Arrays.copyOf(sequence, sequence.length + upSequence.length);
-            System.arraycopy(upSequence, 0, joined, sequence.length, upSequence.length);
-            this.sequence = joined;
+            List<Long> upSequence = generateSequence(uBound, current, next);
+            sequence.addAll(upSequence);
             this.uBound = uBound;
             iterator.resetIndex();//сбрасываем индекс, т.к. новая последовательность
         }
@@ -71,8 +69,8 @@ public class Fibonacci implements Collection {
 
         @Override
         public long last() {
-            index = sequence.length - 1;
-            return sequence[index];
+            index = sequence.size() - 1;
+            return sequence.get(index);
         }
 
         @Override
@@ -83,7 +81,7 @@ public class Fibonacci implements Collection {
         @Override
         public long previous() {
             if (hasPrevious()) {
-                return sequence[--index];
+                return sequence.get(--index);
             } else {
                 throw new RuntimeException("Нет предыдущего элемента");
             }
@@ -91,12 +89,12 @@ public class Fibonacci implements Collection {
 
         @Override
         public boolean hasNext() {
-            return index < sequence.length;
+            return index < sequence.size();
         }
 
         @Override
         public long next() {
-            return sequence[index++];
+            return sequence.get(index++);
         }
     }
 }
