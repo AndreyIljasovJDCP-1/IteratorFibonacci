@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 
 public class Fibonacci implements Collection {
 
-    private List<Long> sequence;
+    private final List<Long> sequence;
     private long uBound;
     public Fibonacci(long uBound) {
         this.uBound = uBound;
@@ -16,42 +16,42 @@ public class Fibonacci implements Collection {
 
     private List<Long> generateSequence(long uBound, long first, long next) {
         AtomicInteger i = new AtomicInteger(1);
-        long size = Stream.iterate(new long[]{first, next, 1},
+        long size = Stream.iterate(
+                        new long[]{first, next, 1},
                         arr -> new long[]{arr[1], arr[0] + arr[1], i.incrementAndGet()})
                 .filter(arr -> arr[1] > uBound)
                 .findFirst()
                 .map(arr -> arr[2])
                 .get();
         return Stream.iterate(
-                        new long[]{first, next}, arr -> new long[]{arr[1], arr[0] + arr[1]})
+                        new long[]{first, next},
+                        arr -> new long[]{arr[1], arr[0] + arr[1]})
                 .limit(size)
-                .mapToLong(el -> el[0])
-                .boxed()
+                .map(el -> el[0])
                 .collect(Collectors.toList());
     }
 
     public void setUBound(long uBound, Iterator iterator) {
-
         if (uBound > this.uBound) {
             long last = iterator.last();
             long current = last + iterator.previous();
+
             if (current > uBound) {
-                iterator.resetIndex();//сбрасываем индекс, т.к. сейчас он на предыдущем
+                iterator.resetIndex();
                 return;
             }
-
             long next = current + last;
 
             if (next > uBound) {
                 sequence.add(current);
                 this.uBound = uBound;
-                iterator.resetIndex();//сбрасываем индекс, т.к. сейчас он на предыдущем и 1 эл-т добавился
+                iterator.resetIndex();
                 return;
             }
             List<Long> upSequence = generateSequence(uBound, current, next);
             sequence.addAll(upSequence);
             this.uBound = uBound;
-            iterator.resetIndex();//сбрасываем индекс, т.к. новая последовательность
+            iterator.resetIndex();
         }
     }
 

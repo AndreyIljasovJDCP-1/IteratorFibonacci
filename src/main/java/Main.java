@@ -15,5 +15,8 @@ public class Main {
         while (iterator.hasNext()) {
             System.out.println(iterator.next());
         }
+        while (iterator.hasPrevious()) {
+            System.out.println(iterator.previous());
+        }
     }
 }
