@@ -17,7 +17,7 @@ public class Fibonacci implements Collection {
                         arr -> new long[]{arr[1], arr[0] + arr[1], i.incrementAndGet()})
                 .filter(arr -> arr[1] > uBound)
                 .findFirst()
-                .map(arr -> i.get())
+                .map(arr -> arr[2])
                 .get();
         return Stream.iterate(
                 new long[]{0, 1}, arr -> new long[]{arr[1], arr[0] + arr[1]})
