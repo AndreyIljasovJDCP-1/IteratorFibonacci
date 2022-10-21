@@ -1,60 +1,81 @@
 package example.iterator;
 
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
+public class Fibonacci implements Collection{
 
-public class Fibonacci implements Collection {
+    private int previous;
+    private int current;
+    private int upperBound;
+    private int lowerBound;
 
-    private long[] sequence;
-
-    public Fibonacci(long uBound) {
-        this.sequence = generateSequence(uBound);
-    }
-
-    private long[] generateSequence(long uBound) {
-        AtomicInteger i = new AtomicInteger(1);
-        long size = Stream.iterate(new long[]{0, 1, 1},
-                        arr -> new long[]{arr[1], arr[0] + arr[1], i.incrementAndGet()})
-                .filter(arr -> arr[1] > uBound)
-                .findFirst()
-                .map(arr -> arr[2])
-                .get();
-        return Stream.iterate(
-                new long[]{0, 1}, arr -> new long[]{arr[1], arr[0] + arr[1]})
-                .limit(size)
-                .mapToLong(el -> el[0])
-                .toArray();
-    }
-
-    public void setUBound(long uBound) {
-        this.sequence = generateSequence(uBound);
+    public Fibonacci(int upperBound) {
+        this.upperBound = upperBound;
+        this.previous = -2;
+        this.current = 1;
 
     }
 
-    public long[] getSequence() {
-        return sequence;
+    public void setLowerBound(int lowerBound) {
+        this.lowerBound = lowerBound;
     }
 
-    @Override
+    public void setUpperBound(int uBound) {
+        this.upperBound = uBound;
+    }
+
     public Iterator getIterator() {
         return new F_Iterator();
     }
 
     private class F_Iterator implements Iterator {
-        int index;
-
-        public void resetIndex() {
-            this.index = 0;
-        }
 
         @Override
         public boolean hasNext() {
-            return index < sequence.length;
+            return previous + current <= upperBound;
         }
 
         @Override
-        public long next() {
-            return sequence[index++];
+        public int next() {
+            if (previous == -2) {
+                previous++;
+                return 0;
+            }
+            if (previous == -1) {
+                previous++;
+                return 1;
+            }
+            if (previous == 0) {
+                previous++;
+                return 1;
+            }
+            current = current + previous;
+            previous = current - previous;
+            return current;
+        }
+
+        @Override
+        public boolean resetIndex() {
+            previous = -2;
+            current = 1;
+            return true;
+        }
+
+        @Override
+        public boolean hasPrevious() {
+            return current != 0 && previous >= lowerBound;
+        }
+
+        @Override
+        public int current() {
+            return current;
+        }
+
+        @Override
+        public int previous() {
+            if (previous < 0) return 0;
+            previous = current - previous;
+            current = current - previous;
+            return current;
         }
     }
+
 }
